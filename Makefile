@@ -14,6 +14,10 @@ build:
 down:
 	docker-compose down
 
+# Stop containers and remove volumes
+down-v:
+	docker-compose down -v
+
 # View logs
 logs:
 	docker-compose logs -f
@@ -38,4 +42,12 @@ test:
 # Enter the web container shell
 shell:
 	docker-compose exec web /bin/bash
+
+# Run the app locally with SQLite
+run-local:
+	TESTING=True python -m uvicorn app.main:app --reload
+
+# Reset the local SQLite database
+reset-local:
+	python scripts/reset_db.py --testing
 

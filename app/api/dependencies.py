@@ -1,19 +1,19 @@
-import jwt 
+import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from jwt.exceptions import InvalidTokenError
 
 from app.db.session import get_db
 from app.crud import user as crud_user
-from app.schemas.user import TokenData
+from app.schemas.user_schema import TokenData
+from app.models.user_model import User
 
 SECRET_KEY = "2088bfcff7c0bff13f7852beac4fd8344b903b5044752e94e6dfd5c9fe5213ce"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -37,7 +37,7 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
-    except InvalidTokenError:
+    except jwt.PyJWTError:
         raise credentials_exception
     user = crud_user.get_user_by_username(db, username=token_data.username)
     if user is None:

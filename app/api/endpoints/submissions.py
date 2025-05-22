@@ -2,13 +2,15 @@ import os
 from typing import List
 import uuid
 import shutil 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.submission import Submission, SubmissionCreate
+from app.models.submission_model import Submission as SubmissionModel
+from app.models.user_model import User
+from app.schemas.submission_schema import Submission, SubmissionCreate, SubmissionWithResults
+from app.schemas.user_schema import User as UserSchema
 from app.api.dependencies import get_current_user
-from app.schemas.user import User
 from app.crud import submission as crud_submission
 from app.ai.process import process_submission
 
@@ -35,7 +37,7 @@ async def create_submission(
     submission_data = SubmissionCreate(
         language=language,
         file_name=filename
-    )a
+    )
     submission = crud_submission.create_submission(
         db=db,
         submission=submission_data,
@@ -60,7 +62,36 @@ def read_submissions(
     submissions = crud_submission.get_user_submissions(db, user_id=current_user.id, skip=skip, limit=limit)
     return submissions
 
+@router.get("/{submission_id}", response_model=Submission)
 def read_submission(
         submission_id: int,
         db: Session = Depends(get_db),
-        currents_user
+        current_user: User = Depends(get_current_user)
+):
+    submission = crud_submission.get_submission(db, submission_id=submission_id)
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    if submission.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this submission")
+    return submission
+
+@router.get("/{submission_id}/results", response_model=SubmissionWithResults)
+def read_submission_with_results(
+        submission_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    submission = crud_submission.get_submission(db, submission_id=submission_id)
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    if submission.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this submission")
+    
+    # Get the results
+    results = crud_submission.get_submission_results(db, submission_id=submission_id)
+    
+    # Combine submission with results
+    submission_dict = {**submission.__dict__}
+    submission_dict["review_results"] = results
+    
+    return submission_dict

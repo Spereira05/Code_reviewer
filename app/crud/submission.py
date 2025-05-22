@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models.models import Submission, ReviewResults
-from app.schemas.submission import SubmissionCreate, ReviewResultCreate
+from app.models import Submission, ReviewResults
+from app.schemas import SubmissionCreate, ReviewResultCreate
 
 def get_submission(db: Session, submission_id: int):
     return db.query(Submission).filter(Submission.id == submission_id).first()
@@ -31,11 +31,12 @@ def update_submission_status(db: Session, submission_id: int, status: str):
         db.refresh(db_submission)
     return db_submission
 
-def create_review_result(db: Session, result: ReviewResultCreate):
+def create_review_result(db: Session, result: ReviewResultCreate, submission_id: int):
     db_result = ReviewResults(
         agent_type=result.agent_type,
         feedback=result.feedback,
-        submission_id=result.submission_id
+        score=result.score,
+        submission_id=submission_id
     )
     db.add(db_result)
     db.commit()

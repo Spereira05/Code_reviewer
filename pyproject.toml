@@ -1,16 +1,36 @@
 [project]
-name = "backend-ii-project"
+name = "backend_ii_project"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI-powered code review backend system"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.115.12",
     "passlib>=1.7.4",
-    "psycopg2>=2.9.10",
     "pydantic>=2.11.3",
     "pyjwt>=2.10.1",
     "python-jose>=3.4.0",
     "sqlalchemy>=2.0.40",
     "uvicorn>=0.34.2",
+    "python-multipart>=0.0.7",
+    "email-validator>=2.0.0",
+    "crewai>=0.49.1",
+    "psycopg2-binary>=2.9.9",
+    "requests>=2.32.3",
+    "langchain>=0.3.25",
+    "langchain-openai>=0.3.17",
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.26.0",
+    "httpx>=0.27.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+    packages = ["app"]

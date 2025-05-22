@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt" lang="pt">
+<head>
+    <title>HUMANPORTAL</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="generator" content="HUMANPORTAL" />
+    <meta name="author" content="HUMANSOFT" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href='https://fonts.googleapis.com/css?family=Ubuntu' rel='stylesheet' type='text/css'/>
+		<link rel="icon" type="text/css" href="/versions/v6.8.4.0/public/branding.508486408/favicon.ico?a=1656421162" media="screen" />
+<link rel="icon" type="text/css" href="/versions/v6.8.4.0/public/branding.508486408/favicon.png?a=1656421162" media="screen" />
+	<link rel="stylesheet" type="text/css" href="/versions/v6.8.4.0/public/admin/css/bootstrap.min.css?a=1656421162" media="screen" />
+	<link rel="stylesheet" type="text/css" href="/versions/v6.8.4.0/public/admin/css/select2.css?a=1656421162" media="screen" />
+	<link rel="stylesheet" type="text/css" href="/versions/v6.8.4.0/public/admin/css/font-awesome.min.css?a=1656421162" media="screen" />
+	<link rel="stylesheet" type="text/css" href="/versions/v6.8.4.0/public/admin/css/line-awesome.min.css?a=1656421162" media="ALL" />
+	<link rel="stylesheet" type="text/css" href="/versions/v6.8.4.0/public/admin/css/humanportal.login.css?a=1656421162" media="screen" />
+		<link rel="stylesheet" type="text/css" href="/versions/v6.8.4.0/public/admin/css/templates/site_boxes/session.css?a=1656421162" media="screen" />
+	<script src="/versions/v6.8.4.0/public/admin/js/vendor/jquery-1.10.2.min.js?a=1656421162"></script>
+	<script src="/versions/v6.8.4.0/public/admin/js/humanportal.js?a=1656421162"></script>
+	<script src="/files/javascript/humanportal.sysbase.js"></script>
+	<script src="/files/javascript/humanportal.regional.js"></script>
+	<script src="/versions/v6.8.4.0/public/admin/js/vendor/jquery-ui-1.10.0.custom.min.js?a=1656421162"></script>
+	<script src="/versions/v6.8.4.0/public/admin/js/vendor/select2.js?a=1656421162"></script>
+<script src="/versions/v6.8.4.0/public/admin/js/vendor/i18n/select2_locale_pt-pt.js?a=1656421162"></script>
+	<script src="/versions/v6.8.4.0/public/admin/js/vendor/bootstrap.min.js?a=1656421162"></script>
+	<script src="/versions/v6.8.4.0/public/admin/js/vendor/jquery.placeholder.js?a=1656421162"></script>
+	<link rel="stylesheet" type="text/css" href="/versions/v6.8.4.0/public/admin/css/vendor/parsley.css?a=1656421162" media="screen" />
+<script src="/versions/v6.8.4.0/public/admin/js/vendor/parsley/i18n/messages.pt-pt.js?a=1656421162"></script>
+<script src="/versions/v6.8.4.0/public/admin/js/vendor/parsley/parsley.min.js?a=1656421162"></script>
+<script src="/versions/v6.8.4.0/public/admin/js/vendor/parsley/parsley.extend.min.js?a=1656421162"></script>
+<script src="/versions/v6.8.4.0/public/admin/js/humanportal.parsley.js?a=1656421162"></script>
+	<script src="/versions/v6.8.4.0/public/admin/js/humanportal.default.js?a=1656421162"></script>
+  	<script src="/versions/v6.8.4.0/public/admin/js/humanportal.dialog.js?a=1656421162"></script>
+  	<script src="/versions/v6.8.4.0/public/admin/js/humanportal.site.js?a=1656421162"></script>
+	<style>
+
+	/* YES/NO */
+	:root input[type="checkbox"].switch + div:after {
+		content: 'Não';
+	}
+	:root input[type="checkbox"].switch + div:before {
+		content: 'Sim';
+	}
+	/* YES/NO */
+
+	/* PRESENÇAS */
+
+	/* ALL & NONE */
+	.class_all:after, .class_none:after
+	{
+		content: 'Todos';
+	}
+	/* ALL & NONE  */
+
+	/* PRESENT */
+	.class_pres:after,
+	.class_pres_disabled_on:after,
+	.class_pres_parc:after,
+	.class_pres_off:after,
+	.class_pres_disabled_off:after,
+	.class_pres_parc_disabled_on:after
+	{
+		content: 'Presente';
+	}
+	/* PRESENT */
+
+	/* ABSENT */
+	.class_aus:after,
+	.class_aus_disabled_on:after,
+	.class_aus_off:after,
+	.class_aus_disabled_off:after,
+	.class_pres_disabled:after
+	{
+		content: 'Ausente';
+	}
+
+	/* PRESENÇAS */
+
+</style></head>
+<body>
+	<a class="skip-to-content" href="#content">Saltar para o conteúdo principal da página</a>
+	<div class="pull-right lang_widget"><a href="https://secretaria.eticalgarve.com/sessions/login.html?_r=%2Fpersonal.personal&lang=pt-pt" title="Português"><img src="https://secretaria.eticalgarve.com/versions/v6.8.4.0/public/admin/img/flags/pt.png" alt="pt" /></a><a href="https://secretaria.eticalgarve.com/sessions/login.html?_r=%2Fpersonal.personal&lang=en-gb" title="Inglês"><img src="https://secretaria.eticalgarve.com/versions/v6.8.4.0/public/admin/img/flags/gb.png" alt="en" /></a></div>
+	<div id="logo">
+	    <a href="/session/login.personal"><img src="https://secretaria.eticalgarve.com/versions/v6.8.4.0/public/branding.508486408/logo257x45.png" alt="https://secretaria.eticalgarve.com/" /></a>
+	</div>
+	<div id="errbox">
+		<div id="formBodyMessage">
+			<div class="alert alert-danger">
+			<button type="button" class="close" data-dismiss="alert"><em class="la la-close"></em></button>
+							<p class="0">Utilizador ou palavra-passe inválido</p>
+					</div>
+				</div>
+	</div>
+	<div id="content">
+		<div id="actionbox">
+	<form method="post" class="form-vertical parsley loginform" action="/sessions/start.html?_r=%2Fpersonal.personal" data-parsley-ns="true" style="opacity: 1; z-index: 200;">
+		<h1>Entrar na área reservada</h1>
+		<div>
+			<div class="section">
+				<div class="input-group">
+					<label class="input-group-addon" for="username">
+						<em class="la la-fw la-user"></em>
+					</label>
+					<input id="username"
+						class="form-control input-sm required last"
+						required
+						autofocus
+						autocomplete="off"
+						type="text"
+						name="username_0.78928000 1697399794"
+						value=""
+						placeholder="Nome de utilizador"
+						data-parsley-error-container='.username_err'
+					/>
+				</div>
+				<div class="input-group username_err"></div>
+
+				<div class="input-group">
+					<label class="input-group-addon" for="password">
+						<em class="la la-fw la-lock"></em>
+					</label>
+					<input id="password"
+						class="form-control input-sm required last"
+						required
+						autocomplete="off"
+						type="password"
+						name="password_0.79096600 1697399794"
+						value=""
+						placeholder="Palavra-passe"
+						data-parsley-error-container='.password_err'
+					/>
+				</div>
+				<div class="input-group password_err"></div>
+				<div class="input-group">
+					<button type="submit" class="btn btn-primary submit">
+						<span>Entrar</span>
+						<em class="la la-sign-in"></em>
+					</button>
+				</div>
+			</div>
+
+					</div>
+		<div class="form-actions">
+							<div>
+					<a href="/users/register.html?_r=%2Fpersonal.personal">Não tem acesso? Registe-se aqui.</a>
+				</div>
+						<div>
+				<a href="/users/recover.html?_r=%2Fpersonal.personal">Recuperar palavra-passe</a>
+			</div>
+			<div>
+				<a href="/users/recover.html?type=u">Recuperar o nome de utilizador</a>
+			</div>
+		</div>
+	</form>
+	
+
+</div>
+<div id="plusinfo">
+	Para entrar no sistema, ou efetuar a sua pré-inscrição, introduza o Nome de Utilizador e palavra-passe com que se registou.<br />Se não sabe quais os seus dados de login, clique no link <a href='/users/recover.html?_r=%2Fpersonal.personal'>Recuperar palavra-passe</a>.<br />Se ainda não se registou no sistema, clique no link <a href='/users/register.html?_r=%2Fpersonal.personal'>Não tem acesso? Registe-se aqui.</a></div>
+<script>
+	$(function() {
+		hp.utils.setup($("#actionbox"));
+		$('input, textarea').placeholder();
+	});
+
+	$('a#login').click(function() {
+		hp.utils.ajax({
+			url: '/sessions/getAuthGov.json',
+			after: function(response) {
+				if (response.success) {
+					$('[name=SAMLRequest]').val(response.saml_request);
+					$('[name=RelayState]').val(response.relay);
+					$('form#authgov').submit();
+				}
+			}
+		});
+	});
+</script>
+	</div>
+		<div id="window-main-cover" class="ui-widget-overlay"></div>
+	<div id="window-main-cover-caption" style="background-image: url(https://secretaria.eticalgarve.com/versions/v6.8.4.0/public/branding.508486408/preloader200x54.png);"></div>
+</body>
+</html>
