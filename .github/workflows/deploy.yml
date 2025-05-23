@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    
+    - name: Setup known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: Deploy to server
+      env:
+        SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      run: |
+        # Pull latest code on server
+        ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && git pull"
+        
+        # Rebuild and restart containers
+        ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && docker compose down && docker compose build && docker compose up -d"
+        
+        # Run any database migrations if needed
+        # ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && docker compose exec -T web python migrate.py"
+        
+        echo "Deployment completed successfully"
