@@ -3,6 +3,16 @@ name: Deploy
 on:
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
 
 jobs:
   deploy:
@@ -10,9 +20,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
     - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.7.0
+      uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     
@@ -27,13 +39,35 @@ jobs:
         SERVER_USER: ${{ secrets.SERVER_USER }}
         DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
       run: |
+        # Print deployment info
+        echo "Deploying to ${{ github.event.inputs.environment || 'production' }} environment"
+        
         # Pull latest code on server
-        ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && git pull"
+        ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && git fetch --all && git checkout ${GITHUB_REF#refs/tags/} || git checkout main"
+        
+        # Copy environment file if it exists
+        if [ -f ".env.${{ github.event.inputs.environment || 'production' }}" ]; then
+          scp ".env.${{ github.event.inputs.environment || 'production' }}" $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/.env
+        fi
         
         # Rebuild and restart containers
         ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && docker compose down && docker compose build && docker compose up -d"
         
-        # Run any database migrations if needed
-        # ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && docker compose exec -T web python migrate.py"
+        # Run database migrations if needed
+        # ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && docker compose exec -T web python migrations.py"
+        
+        # Verify deployment
+        ssh $SERVER_USER@$SERVER_HOST "cd $DEPLOY_PATH && docker compose ps"
         
         echo "Deployment completed successfully"
+    
+    - name: Send deployment notification
+      if: always()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: deployments
+        SLACK_COLOR: ${{ job.status }}
+        SLACK_TITLE: Deployment ${{ job.status }}
+        SLACK_MESSAGE: 'Deployment to ${{ github.event.inputs.environment || "production" }} ${{ job.status }}'
+        SLACK_FOOTER: "GitHub Actions"
