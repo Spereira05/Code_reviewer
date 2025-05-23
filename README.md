@@ -1,5 +1,7 @@
 # Backend II Project
 
+[![CI](https://github.com/USERNAME/backend_ii_project/actions/workflows/ci.yml/badge.svg)](https://github.com/USERNAME/backend_ii_project/actions/workflows/ci.yml)
+
 ## Project Structure
 
 This project follows a standard FastAPI application structure with clear separation between models, schemas, and API endpoints.
