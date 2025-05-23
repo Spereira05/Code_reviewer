@@ -28,7 +28,8 @@ def test_import_modules():
     # These imports should not raise exceptions
     from app.db.session import Base, get_db
     from app.api.api import api_router
-    from app.models.models import User, Submission
+    from app.models.user_model import User
+    from app.models.submission_model import Submission
     
     assert Base is not None
     assert get_db is not None 

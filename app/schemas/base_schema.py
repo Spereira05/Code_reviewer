@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
 class BaseSchema(BaseModel):
@@ -6,8 +6,7 @@ class BaseSchema(BaseModel):
     Base class for all Pydantic schemas in the application.
     This provides common settings and functionality.
     """
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class IDSchema(BaseSchema):
     """

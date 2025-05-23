@@ -77,6 +77,7 @@ def pull_model(model_name):
         return False
 
 async def process_submission(submission_id: int, file_path: str, db: Session):
+    """Process a code submission with multiple specialized agents"""
     # Update submission status to processing
     crud_submission.update_submission_status(db, submission_id, "PROCESSING")
     logger.info(f"Processing submission_id: {submission_id}, file: {file_path}")
@@ -91,58 +92,95 @@ async def process_submission(submission_id: int, file_path: str, db: Session):
         language = submission.language.lower()
         logger.info(f"Submission language: {language}")
         
-        # Generate prompt for analysis
-        prompt = f"Analyze this {language} code for quality, security, and performance issues:\n\n```{language}\n{code_content}\n```"
+        # Define the different agents and their specific prompts
+        agents = [
+            {
+                "type": "Code Quality Agent",
+                "prompt": f"Analyze this {language} code for code quality, readability, and best practices. Focus on style, structure, naming conventions, and general best practices:\n\n```{language}\n{code_content}\n```",
+                "score_base": 80
+            },
+            {
+                "type": "Security Agent",
+                "prompt": f"Analyze this {language} code for security vulnerabilities and risks. Focus specifically on potential security issues, injection risks, authentication problems, and data exposure:\n\n```{language}\n{code_content}\n```",
+                "score_base": 70
+            },
+            {
+                "type": "Performance Agent",
+                "prompt": f"Analyze this {language} code for performance issues and optimization opportunities. Focus on algorithm efficiency, resource usage, and potential bottlenecks:\n\n```{language}\n{code_content}\n```",
+                "score_base": 75
+            }
+        ]
         
-        try:
-            # Check if Ollama service is available
-            if not check_ollama_service():
-                logger.error("Ollama service is not available")
-                raise Exception("Ollama service is not available. Please check the service is running.")
+        # Check if Ollama service is available
+        if not check_ollama_service():
+            logger.error("Ollama service is not available")
+            raise Exception("Ollama service is not available. Please check the service is running.")
+            
+        # Check if model exists and pull if needed
+        model_name = OLLAMA_MODEL
+        if not check_model_availability(model_name):
+            logger.warning(f"Model '{model_name}' not found, attempting to pull it")
+            if not pull_model(model_name):
+                raise Exception(f"Model '{model_name}' is not available and could not be pulled")
                 
-            # Check if model exists and pull if needed
-            model_name = OLLAMA_MODEL
-            if not check_model_availability(model_name):
-                logger.warning(f"Model '{model_name}' not found, attempting to pull it")
-                if not pull_model(model_name):
-                    raise Exception(f"Model '{model_name}' is not available and could not be pulled")
+            # Wait a moment for the model to be ready
+            time.sleep(2)
+        
+        # Process each agent
+        for agent in agents:
+            agent_type = agent["type"]
+            agent_prompt = agent["prompt"]
+            score_base = agent["score_base"]
+            
+            logger.info(f"Running {agent_type} for submission_id: {submission_id}")
+            
+            try:
+                # Send code to Ollama for this specific agent
+                logger.info(f"Sending code to Ollama for {agent_type} with model: {model_name}")
+                response = requests.post(
+                    f"{OLLAMA_URL}/api/generate",
+                    json={"model": model_name, "prompt": agent_prompt, "stream": False},
+                    timeout=OLLAMA_TIMEOUT
+                )
+                
+                if response.status_code == 200:
+                    feedback = response.json().get("response", "Analysis failed")
+                    logger.info(f"Successfully analyzed code with {agent_type} for submission_id: {submission_id}")
                     
-                # Wait a moment for the model to be ready
-                time.sleep(2)
-            
-            # Try to use Ollama for analysis
-            logger.info(f"Sending code to Ollama for analysis with model: {model_name}")
-            response = requests.post(
-                f"{OLLAMA_URL}/api/generate",
-                json={"model": model_name, "prompt": prompt, "stream": False},
-                timeout=OLLAMA_TIMEOUT
-            )
-            
-            if response.status_code == 200:
-                feedback = response.json().get("response", "Analysis failed")
-                logger.info(f"Successfully analyzed code for submission_id: {submission_id}")
-            else:
-                error_msg = f"Could not analyze due to API error: {response.status_code}"
-                if response.status_code == 404:
-                    error_msg += f". Model '{model_name}' not found."
-                logger.error(error_msg)
-                feedback = error_msg
+                    # Save result for this agent
+                    result = ReviewResultCreate(
+                        agent_type=agent_type,
+                        feedback=feedback,
+                        score=score_base if "API error" not in feedback else 0
+                    )
+                    
+                    # Save to database
+                    crud_submission.create_review_result(db, result, submission_id)
+                else:
+                    error_msg = f"Could not analyze with {agent_type} due to API error: {response.status_code}"
+                    if response.status_code == 404:
+                        error_msg += f". Model '{model_name}' not found."
+                    logger.error(error_msg)
+                    
+                    # Save error result
+                    error_result = ReviewResultCreate(
+                        agent_type=agent_type,
+                        feedback=error_msg,
+                        score=0
+                    )
+                    crud_submission.create_review_result(db, error_result, submission_id)
+            except Exception as e:
+                error_msg = f"Analysis with {agent_type} could not be performed: {str(e)}"
+                logger.error(f"Error during {agent_type} analysis: {error_msg}")
+                logger.debug(traceback.format_exc())
                 
-        except Exception as e:
-            error_msg = f"Analysis could not be performed: {str(e)}"
-            logger.error(f"Error during code analysis: {error_msg}")
-            logger.debug(traceback.format_exc())
-            feedback = error_msg
-        
-        # Save as a single result
-        result = ReviewResultCreate(
-            agent_type="Code Analysis",
-            feedback=feedback,
-            score=75 if "API error" not in feedback else 0
-        )
-        
-        # Save to database
-        crud_submission.create_review_result(db, result, submission_id)
+                # Save error result
+                error_result = ReviewResultCreate(
+                    agent_type=agent_type,
+                    feedback=error_msg,
+                    score=0
+                )
+                crud_submission.create_review_result(db, error_result, submission_id)
         
         # Update submission status to completed
         crud_submission.update_submission_status(db, submission_id, "COMPLETED")
